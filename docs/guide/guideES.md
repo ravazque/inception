@@ -6,23 +6,64 @@
 
 ## Tabla de contenidos
 
-1. [Qué es Inception y qué pide el subject](#1-qué-es-inception-y-qué-pide-el-subject)
-2. [Docker y Docker Compose explicados desde cero](#2-docker-y-docker-compose-explicados-desde-cero)
-3. [Instalar Docker en CachyOS](#3-instalar-docker-en-cachyos)
-4. [Estructura de directorios del proyecto](#4-estructura-de-directorios-del-proyecto)
-5. [El hostname: ravazque.42.fr](#5-el-hostname-ravazque42fr)
-6. [El archivo .env y los secrets](#6-el-archivo-env-y-los-secrets)
-7. [Contenedor MariaDB](#7-contenedor-mariadb)
-8. [Contenedor WordPress](#8-contenedor-wordpress)
-9. [Contenedor NGINX](#9-contenedor-nginx)
-10. [El docker-compose.yml](#10-el-docker-composeyml)
-11. [El Makefile](#11-el-makefile)
-12. [Cómo funcionan los volúmenes y la red](#12-cómo-funcionan-los-volúmenes-y-la-red)
-13. [Arrancar, probar y validar el proyecto](#13-arrancar-probar-y-validar-el-proyecto)
-14. [Archivos de documentación obligatorios (README, USER_DOC, DEV_DOC)](#14-archivos-de-documentación-obligatorios-readme-user_doc-dev_doc)
-15. [Checklist de corrección](#15-checklist-de-corrección)
-16. [Errores frecuentes en Arch/CachyOS](#16-errores-frecuentes-en-archcachyos)
-17. [Migración a VirtualBox con Arch + i3 en Ubuntu](#17-migración-a-virtualbox-con-arch--i3-en-ubuntu)
+- [42 Inception — Guía Completa para CachyOS + Migración a VirtualBox/Arch](#42-inception--guía-completa-para-cachyos--migración-a-virtualboxarch)
+  - [Tabla de contenidos](#tabla-de-contenidos)
+  - [1. Qué es Inception y qué pide el subject](#1-qué-es-inception-y-qué-pide-el-subject)
+  - [2. Docker y Docker Compose explicados desde cero](#2-docker-y-docker-compose-explicados-desde-cero)
+  - [3. Instalar Docker en CachyOS](#3-instalar-docker-en-cachyos)
+  - [4. Estructura de directorios del proyecto](#4-estructura-de-directorios-del-proyecto)
+  - [5. El hostname: ravazque.42.fr](#5-el-hostname-ravazque42fr)
+  - [6. El archivo .env y los secrets](#6-el-archivo-env-y-los-secrets)
+    - [El fichero `.env`](#el-fichero-env)
+    - [El directorio secrets](#el-directorio-secrets)
+    - [El `.gitignore`](#el-gitignore)
+  - [7. Contenedor MariaDB](#7-contenedor-mariadb)
+    - [`srcs/requirements/mariadb/Dockerfile`](#srcsrequirementsmariadbdockerfile)
+    - [`srcs/requirements/mariadb/conf/50-server.cnf`](#srcsrequirementsmariadbconf50-servercnf)
+    - [`srcs/requirements/mariadb/tools/setup.sh`](#srcsrequirementsmariadbtoolssetupsh)
+  - [8. Contenedor WordPress](#8-contenedor-wordpress)
+    - [`srcs/requirements/wordpress/Dockerfile`](#srcsrequirementswordpressdockerfile)
+    - [`srcs/requirements/wordpress/conf/www.conf`](#srcsrequirementswordpressconfwwwconf)
+    - [`srcs/requirements/wordpress/tools/setup.sh`](#srcsrequirementswordpresstoolssetupsh)
+  - [9. Contenedor NGINX](#9-contenedor-nginx)
+    - [`srcs/requirements/nginx/Dockerfile`](#srcsrequirementsnginxdockerfile)
+    - [`srcs/requirements/nginx/conf/nginx.conf`](#srcsrequirementsnginxconfnginxconf)
+    - [`srcs/requirements/nginx/tools/setup.sh`](#srcsrequirementsnginxtoolssetupsh)
+  - [10. El docker-compose.yml](#10-el-docker-composeyml)
+  - [11. El Makefile](#11-el-makefile)
+  - [12. Cómo funcionan los volúmenes y la red](#12-cómo-funcionan-los-volúmenes-y-la-red)
+  - [13. Arrancar, probar y validar el proyecto](#13-arrancar-probar-y-validar-el-proyecto)
+    - [Primer arranque](#primer-arranque)
+    - [Verificar los contenedores](#verificar-los-contenedores)
+    - [Probar el sitio web](#probar-el-sitio-web)
+  - [14. Archivos de documentación obligatorios (README, USER\_DOC, DEV\_DOC)](#14-archivos-de-documentación-obligatorios-readme-user_doc-dev_doc)
+    - [`README.md`](#readmemd)
+    - [`USER_DOC.md`](#user_docmd)
+    - [`DEV_DOC.md`](#dev_docmd)
+  - [15. Checklist de corrección](#15-checklist-de-corrección)
+  - [16. Errores frecuentes en Arch/CachyOS](#16-errores-frecuentes-en-archcachyos)
+  - [17. Migración a VirtualBox con Arch + i3 en Ubuntu](#17-migración-a-virtualbox-con-arch--i3-en-ubuntu)
+    - [Idea general](#idea-general)
+  - [0. Arquitectura de despliegue — Qué va dónde](#0-arquitectura-de-despliegue--qué-va-dónde)
+    - [Qué necesita la máquina host Ubuntu](#qué-necesita-la-máquina-host-ubuntu)
+    - [Qué necesita la VM Arch](#qué-necesita-la-vm-arch)
+    - [Qué está y qué no está en tu repositorio Git](#qué-está-y-qué-no-está-en-tu-repositorio-git)
+  - [17. Migración a VirtualBox con Arch + i3 en Ubuntu (Guía Completa)](#17-migración-a-virtualbox-con-arch--i3-en-ubuntu-guía-completa)
+    - [Paso 1 — Sube tu código a Git (en CachyOS, antes de todo)](#paso-1--sube-tu-código-a-git-en-cachyos-antes-de-todo)
+    - [Paso 2 — Instala VirtualBox en Ubuntu](#paso-2--instala-virtualbox-en-ubuntu)
+    - [Paso 3 — Crea y configura la VM Arch Linux](#paso-3--crea-y-configura-la-vm-arch-linux)
+    - [Paso 4 — Instala Arch Linux en la VM](#paso-4--instala-arch-linux-en-la-vm)
+    - [Paso 5 — Instala el entorno gráfico i3 en la VM](#paso-5--instala-el-entorno-gráfico-i3-en-la-vm)
+    - [Paso 6 — Instala Docker dentro de la VM](#paso-6--instala-docker-dentro-de-la-vm)
+    - [Paso 7 — Configuración SSH (opcional pero recomendado)](#paso-7--configuración-ssh-opcional-pero-recomendado)
+    - [Paso 8 — Clona el proyecto dentro de la VM](#paso-8--clona-el-proyecto-dentro-de-la-vm)
+    - [Paso 9 — Crea los directorios de datos del host en la VM](#paso-9--crea-los-directorios-de-datos-del-host-en-la-vm)
+    - [Paso 10 — Crea .env y secrets en la VM](#paso-10--crea-env-y-secrets-en-la-vm)
+    - [Paso 11 — Configura el dominio en la VM](#paso-11--configura-el-dominio-en-la-vm)
+    - [Paso 12 — Arranca y prueba el proyecto en la VM](#paso-12--arranca-y-prueba-el-proyecto-en-la-vm)
+    - [Diferencias: CachyOS vs VM Arch](#diferencias-cachyos-vs-vm-arch)
+    - [Script de preparación rápida de la VM](#script-de-preparación-rápida-de-la-vm)
+    - [Checklist del día de la evaluación](#checklist-del-día-de-la-evaluación)
 
 ---
 
@@ -889,208 +930,367 @@ El subject de 42 Madrid requiere que la corrección se haga en una máquina virt
 
 El código fuente de Inception (todos los Dockerfiles, configs, scripts y el Makefile) es completamente portable — no depende de nada específico de CachyOS. Lo que cambia entre entornos es: la instalación de Docker, la configuración local de DNS (`/etc/hosts`), los directorios de datos del host y algunos ajustes del sistema.
 
-### Paso 1: Tener el código en Git
+## 0. Arquitectura de despliegue — Qué va dónde
 
-Antes de nada, tu proyecto debe estar en tu repositorio de 42:
+Antes de hacer cualquier cosa, entiende bien el entorno de dos capas que se usa en la evaluación de 42:
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│  MÁQUINA HOST UBUNTU (máquina del evaluador o la tuya)      │
+│                                                             │
+│  Solo tiene: VirtualBox instalado                           │
+│  NO tiene: Docker, el proyecto, secrets, .env               │
+│                                                             │
+│  ┌───────────────────────────────────────────────────────┐  │
+│  │  MÁQUINA VIRTUAL ARCH LINUX (dentro de VirtualBox)    │  │
+│  │                                                       │  │
+│  │  Tiene todo:                                          │  │
+│  │  ├── Arch Linux + gestor de ventanas i3               │  │
+│  │  ├── Docker + Docker Compose                          │  │
+│  │  ├── El repositorio Git clonado (Dockerfiles, etc.)   │  │
+│  │  ├── srcs/.env (creado manualmente, NO de Git)        │  │
+│  │  ├── secrets/ (creado manualmente, NO de Git)         │  │
+│  │  ├── /home/ravazque/data/ (directorios de datos)      │  │
+│  │  ├── Entrada en /etc/hosts para ravazque.42.fr        │  │
+│  │  └── Firefox (para acceder al sitio WordPress)        │  │
+│  │                                                       │  │
+│  │  Red Docker (bridge):                                 │  │
+│  │  ├── Contenedor: nginx      (puerto 443 ← único abierto) │
+│  │  ├── Contenedor: wordpress  (puerto 9000 interno)     │  │
+│  │  └── Contenedor: mariadb    (puerto 3306 interno)     │  │
+│  └───────────────────────────────────────────────────────┘  │
+└─────────────────────────────────────────────────────────────┘
+```
+
+### Qué necesita la máquina host Ubuntu
+
+| Elemento | ¿Necesario en Ubuntu host? | Notas |
+|---|---|---|
+| VirtualBox | ✅ Sí | `sudo apt install virtualbox` |
+| Docker | ❌ No | Docker corre DENTRO de la VM |
+| El repositorio Git | ❌ No | El clone se hace DENTRO de la VM |
+| El directorio secrets/ | ❌ No | Se crea DENTRO de la VM |
+| El archivo srcs/.env | ❌ No | Se crea DENTRO de la VM |
+| Firefox / navegador | Opcional | Solo si quieres probar desde el host (no es necesario) |
+| Cliente SSH | Opcional | Solo si prefieres trabajar vía SSH en vez de directamente en la VM |
+
+### Qué necesita la VM Arch
+
+| Elemento | ¿Necesario en la VM? | Cómo conseguirlo |
+|---|---|---|
+| Docker + Compose | ✅ Sí | `sudo pacman -S docker docker-compose docker-buildx` |
+| Git | ✅ Sí | `sudo pacman -S git` |
+| El repositorio del proyecto | ✅ Sí | `git clone <url-de-tu-repo-42>` |
+| srcs/.env | ✅ Sí | Crear manualmente (ver sección 6) |
+| El directorio secrets/ | ✅ Sí | Crear manualmente (ver sección 6) |
+| /home/ravazque/data/ | ✅ Sí | `sudo mkdir -p /home/ravazque/data/{wordpress,mysql}` |
+| Entrada en /etc/hosts | ✅ Sí | `echo "127.0.0.1 ravazque.42.fr" \| sudo tee -a /etc/hosts` |
+| Firefox | ✅ Sí | `sudo pacman -S firefox` — para demostrar el sitio en la VM |
+| i3 + Xorg | ✅ Sí | Entorno gráfico de la VM |
+| openssh (servidor) | ⚠️ Opcional | Solo si quieres acceder vía SSH desde Ubuntu |
+
+### Qué está y qué no está en tu repositorio Git
+
+| Archivo/Directorio | ¿En Git? | Motivo |
+|---|---|---|
+| `Makefile` | ✅ Sí | Sin credenciales |
+| `srcs/docker-compose.yml` | ✅ Sí | Referencia secrets pero no los contiene |
+| `srcs/.env.example` | ✅ Sí | Solo plantilla, sin valores reales |
+| `srcs/requirements/*/Dockerfile` | ✅ Sí | Sin contraseñas |
+| `srcs/requirements/*/conf/*` | ✅ Sí | Archivos de configuración seguros |
+| `srcs/requirements/*/tools/setup.sh` | ✅ Sí | Lee contraseñas de secrets, no las hardcodea |
+| `README.md`, `USER_DOC.md`, `DEV_DOC.md` | ✅ Sí | Requeridos por el subject |
+| `docs/guide/guideEN.md`, `guideES.md` | ✅ Sí | Documentación |
+| `srcs/.env` | ❌ NO en Git | Contiene valores reales, excluido por .gitignore |
+| `secrets/` | ❌ NO en Git | Contiene contraseñas, excluido por .gitignore |
+
+> **Crítico:** El `.gitignore` debe contener `srcs/.env` y `secrets/`. Verifica antes de cada push:
+> ```bash
+> git status   # srcs/.env y secrets/ NO deben aparecer en la salida
+> ```
+
+---
+
+## 17. Migración a VirtualBox con Arch + i3 en Ubuntu (Guía Completa)
+
+Esta sección cubre el flujo completo para pasar de desarrollar en CachyOS a ejecutar la evaluación en una VM Arch limpia dentro de VirtualBox sobre Ubuntu. Lee la sección 0 primero para entender qué va dónde.
+
+### Paso 1 — Sube tu código a Git (en CachyOS, antes de todo)
 
 ```bash
 cd inception
-git init  # si no lo has hecho ya
+
+# Verifica que secrets y .env están excluidos
+git status   # Ni srcs/.env ni secrets/ deben aparecer
+
+# Commit y push
 git add .
-git commit -m "inception: mandatory part complete"
+git commit -m "inception: parte obligatoria completa"
 git push
 ```
 
-**Verifica que `.env` y `secrets/` NO están en Git** (deben estar en `.gitignore`):
+### Paso 2 — Instala VirtualBox en Ubuntu
 
-```bash
-git status
-# Ni srcs/.env ni secrets/ deben aparecer
-```
-
-### Paso 2: Instalar VirtualBox en Ubuntu
-
-En la máquina Ubuntu (la del evaluador, o la tuya para prepararte):
+En la máquina host Ubuntu:
 
 ```bash
 sudo apt update
 sudo apt install -y virtualbox virtualbox-ext-pack
 ```
 
-### Paso 3: Crear la VM con Arch Linux
+Reinicia si se solicita.
 
-**Configuración recomendada de la VM:**
-- **Tipo:** Linux, Arch Linux (64-bit)
-- **RAM:** mínimo 2 GB, recomendado 4 GB
-- **Disco:** mínimo 20 GB (con expansión dinámica está bien)
-- **Red:** Adaptador puente (Bridge) — así la VM obtiene una IP de tu red local. Alternativamente usa NAT con reenvío de puertos (443 → 443).
+### Paso 3 — Crea y configura la VM Arch Linux
+
+Descarga la ISO de Arch Linux desde [archlinux.org/download](https://archlinux.org/download/).
+
+En VirtualBox, crea una nueva VM:
+- **Tipo:** Linux → Arch Linux (64-bit)
+- **RAM:** mínimo 4 GB (2 GB si el espacio es limitado)
+- **Disco:** 25 GB VDI dinámico
 - **Procesadores:** 2 vCPUs mínimo
+- **Adaptador de red:**
+  - **Adaptador puente (Bridge)** — la VM obtiene su propia IP en tu red local. Úsalo si quieres que la VM sea accesible desde Ubuntu (por SSH o navegador en Ubuntu).
+  - **NAT + Reenvío de puertos** — más simple, sin IP de red local. Configura: Host 443 → Guest 443, Host 2222 → Guest 22 (para SSH si quieres).
 
-**Instalación de Arch Linux en la VM:**
+Monta la ISO de Arch en la unidad óptica de la VM y arranca.
 
-Descarga la ISO de Arch Linux desde [archlinux.org](https://archlinux.org/download/), monta la ISO en la VM y sigue la instalación estándar de Arch. Para Inception no necesitas nada especial — instalación base con:
+### Paso 4 — Instala Arch Linux en la VM
+
+Dentro de la VM, en el live environment de la ISO:
 
 ```bash
-# Desde el live environment de Arch
-pacstrap /mnt base base-devel linux linux-firmware networkmanager sudo nano git
+# 1. Distribución de teclado (si es necesario)
+loadkeys es    # teclado español
+
+# 2. Conectividad a internet (cable suele funcionar automáticamente en VM)
+ping -c 1 archlinux.org
+
+# 3. Particionar el disco (disposición simple para VM)
+fdisk /dev/sda
+# Crea: /dev/sda1 (1M, BIOS boot) y /dev/sda2 (resto, Linux filesystem)
+
+mkfs.ext4 /dev/sda2
+mount /dev/sda2 /mnt
+
+# 4. Instalar sistema base
+pacstrap /mnt base base-devel linux linux-firmware networkmanager sudo nano git openssh
+
+# 5. Generar fstab
 genfstab -U /mnt >> /mnt/etc/fstab
+
+# 6. Entrar al nuevo sistema
 arch-chroot /mnt
+
+# 7. Configuración básica
 ln -sf /usr/share/zoneinfo/Europe/Madrid /etc/localtime
-echo "LANG=en_US.UTF-8" > /etc/locale.conf
+hwclock --systohc
+echo "es_ES.UTF-8 UTF-8" >> /etc/locale.gen
+locale-gen
+echo "LANG=es_ES.UTF-8" > /etc/locale.conf
 echo "archvm" > /etc/hostname
-passwd   # contraseña de root
+
+# 8. Contraseña root y usuario
+passwd
 useradd -m -G wheel ravazque
 passwd ravazque
-# Edita /etc/sudoers y descomenta la línea %wheel ALL=(ALL) ALL
+
+# 9. Habilitar sudo para el grupo wheel
+EDITOR=nano visudo   # Descomenta: %wheel ALL=(ALL:ALL) ALL
+
+# 10. Habilitar red y SSH en el arranque
 systemctl enable NetworkManager
+systemctl enable sshd    # opcional, solo si quieres acceso SSH
+
+# 11. Instalar gestor de arranque
+pacman -S grub
+grub-install /dev/sda
+grub-mkconfig -o /boot/grub/grub.cfg
+
+# 12. Salir y reiniciar
+exit
+umount /mnt
+reboot
 ```
 
-### Paso 4: Instalar i3 en la VM
+Expulsa la ISO de la unidad óptica antes de que la VM reinicie.
 
-i3 es un gestor de ventanas mínimo. Instala un entorno gráfico básico:
+### Paso 5 — Instala el entorno gráfico i3 en la VM
+
+Inicia sesión como `ravazque` tras el reinicio:
 
 ```bash
-# Como root o con sudo en la VM ya instalada
-pacman -Syu
-pacman -S xorg xorg-xinit i3 i3status dmenu alacritty \
-          firefox ttf-dejavu noto-fonts
+sudo pacman -Syu
+sudo pacman -S xorg xorg-xinit i3 i3status dmenu alacritty firefox ttf-dejavu noto-fonts
 
-# Configura xinit para arrancar i3
+# Configura startx para lanzar i3
 echo "exec i3" > ~/.xinitrc
 
-# Arranca el entorno gráfico
-startx
-```
-
-Para que arranque automáticamente al login, añade a `~/.bash_profile` o `~/.zprofile`:
-
-```bash
+# (Opcional) Arranque automático del entorno gráfico al login
+cat >> ~/.bash_profile <<'EOF'
 if [ -z "$DISPLAY" ] && [ "$XDG_VTNR" -eq 1 ]; then
     exec startx
 fi
+EOF
+
+# Arranca i3 manualmente ahora
+startx
 ```
 
-### Paso 5: Instalar Docker en la VM (Arch)
+Dentro de i3: `$mod+Enter` abre terminal (alacritty), `$mod+d` abre el lanzador dmenu.
 
-Exactamente igual que en CachyOS — ambos son Arch-based:
+### Paso 6 — Instala Docker dentro de la VM
+
+Abre una terminal en i3 (`$mod+Enter`) y ejecuta:
 
 ```bash
 sudo pacman -S docker docker-compose docker-buildx
 sudo systemctl enable --now docker.service
 sudo usermod -aG docker ravazque
+
+# Aplica el cambio de grupo en la sesión actual
 newgrp docker
 
-# Arreglar IP forwarding
+# Arreglar IP forwarding (necesario para la red Docker en Arch)
 sudo sysctl -w net.ipv4.ip_forward=1
 echo "net.ipv4.ip_forward = 1" | sudo tee /etc/sysctl.d/99-docker.conf
 
-# Arreglar DNS de Docker
+# Arreglar DNS para builds de contenedores (problema de systemd-resolved en Arch)
 sudo mkdir -p /etc/docker
-sudo tee /etc/docker/daemon.json <<'EOF'
-{
-  "dns": ["1.1.1.1", "8.8.8.8"]
-}
-EOF
+echo '{"dns": ["1.1.1.1", "8.8.8.8"]}' | sudo tee /etc/docker/daemon.json
 sudo systemctl restart docker
+
+# Verificar
+docker run hello-world
 ```
 
-### Paso 6: Clonar el proyecto en la VM
+### Paso 7 — Configuración SSH (opcional pero recomendado)
+
+SSH te permite trabajar desde el terminal del host Ubuntu en lugar del escritorio de la VM. Es opcional — también puedes trabajar directamente dentro de i3.
+
+**Si usas NAT + Reenvío de puertos (Host 2222 → Guest 22):**
+
+Dentro de la VM:
+```bash
+sudo systemctl enable --now sshd
+```
+
+Desde el host Ubuntu:
+```bash
+ssh -p 2222 ravazque@127.0.0.1
+```
+
+**Si usas Adaptador puente (Bridge):**
+
+Obtén la IP de la VM desde dentro de ella:
+```bash
+ip addr show | grep "inet " | grep -v 127
+```
+
+Desde el host Ubuntu:
+```bash
+ssh ravazque@<ip-de-la-vm>
+```
+
+**Copiar archivos desde Ubuntu a la VM por SSH (si es necesario):**
+
+```bash
+# Copiar .env o secrets a la VM
+scp -P 2222 mi_env_local ravazque@127.0.0.1:/home/ravazque/inception/srcs/.env
+scp -P 2222 -r mis_secrets/ ravazque@127.0.0.1:/home/ravazque/inception/secrets/
+```
+
+> **Nota:** También puedes escribir el `.env` y `secrets/` directamente dentro de la VM sin SSH. El SSH es pura comodidad para quienes prefieren trabajar desde el terminal de Ubuntu.
+
+### Paso 8 — Clona el proyecto dentro de la VM
+
+Dentro de la VM (en un terminal de i3 o vía SSH):
 
 ```bash
 cd ~
 git clone https://git.42madrid.com/ravazque/inception.git
-# o el URL de tu repositorio de 42
+# Sustituye por la URL real de tu repositorio de 42
 ```
 
-### Paso 7: Crear los directorios de datos, .env y secrets en la VM
-
-Los directorios de datos **deben existir en el host de la VM** antes de ejecutar el proyecto:
+### Paso 9 — Crea los directorios de datos del host en la VM
 
 ```bash
 sudo mkdir -p /home/ravazque/data/wordpress
 sudo mkdir -p /home/ravazque/data/mysql
 sudo chown -R ravazque:ravazque /home/ravazque/data
-
-# Si el disco de la VM usa Btrfs (no es lo habitual en una instalación limpia):
-# sudo chattr +C /home/ravazque/data/mysql
-# sudo chattr +C /home/ravazque/data/wordpress
 ```
 
-Crea el `.env` y `secrets/` manualmente en la VM (no están en Git):
+> La VM usa ext4 por defecto — no hay problema de CoW con Btrfs. El paso `chattr +C` de la guía de CachyOS NO es necesario aquí.
+
+### Paso 10 — Crea .env y secrets en la VM
+
+Estos archivos **NO están en Git** y deben crearse manualmente en cada entorno nuevo:
 
 ```bash
+# Crear .env
 cat > ~/inception/srcs/.env <<'EOF'
 DOMAIN_NAME=ravazque.42.fr
-MYSQL_DATABASE=wordpress
-MYSQL_USER=wpuser
-WP_TITLE=Inception
-WP_ADMIN_USER=boss
-WP_ADMIN_EMAIL=boss@student.42.fr
-WP_USER=editor
-WP_USER_EMAIL=editor@student.42.fr
+MYSQL_DATABASE=ravazquedb
+MYSQL_USER=ravazque
+WP_TITLE=RavazquePage
+WP_ADMIN_USER=ravazque_wp
+WP_ADMIN_EMAIL=ravazque@student.42madrid.fr
+WP_USER=ravazque
+WP_USER_EMAIL=tu@email.com
 SECRETS_DIR=../secrets
 EOF
 
+# Crear secrets
 mkdir -p ~/inception/secrets
-printf 'wppass123' > ~/inception/secrets/db_password.txt
-printf 'rootpass123' > ~/inception/secrets/db_root_password.txt
-printf 'bosspass123\neditorpass123' > ~/inception/secrets/credentials.txt
+printf 'tu_contraseña_db'   > ~/inception/secrets/db_password.txt
+printf 'tu_contraseña_root' > ~/inception/secrets/db_root_password.txt
+printf 'pw_admin\npw_user'  > ~/inception/secrets/credentials.txt
 ```
 
-### Paso 8: Configurar el hostname en la VM
+### Paso 11 — Configura el dominio en la VM
 
 ```bash
 echo "127.0.0.1 ravazque.42.fr" | sudo tee -a /etc/hosts
+ping -c 1 ravazque.42.fr   # Debe responder desde 127.0.0.1
 ```
 
-### Paso 9: Arrancar el proyecto en la VM
+> **Importante:** Esta entrada de `/etc/hosts` debe estar en la VM, NO en el host Ubuntu. El sitio WordPress corre dentro de la VM y se prueba desde dentro de la VM (usando Firefox en i3).
+
+### Paso 12 — Arranca y prueba el proyecto en la VM
 
 ```bash
 cd ~/inception
 make
+make logs   # Observa la secuencia de arranque
 ```
 
-Verifica que funciona exactamente igual que en CachyOS:
+Abre Firefox dentro de i3 y navega a `https://ravazque.42.fr`. Acepta el aviso del certificado. El sitio WordPress debe aparecer.
 
-```bash
-make logs
-# Espera a que los tres contenedores estén listos
+### Diferencias: CachyOS vs VM Arch
 
-# Abre Firefox en la VM
-firefox https://ravazque.42.fr
-```
-
-### Diferencias entre CachyOS y Arch puro en VM
-
-| Aspecto | CachyOS | Arch puro en VM |
+| Aspecto | CachyOS (desarrollo) | Arch Linux VM (evaluación) |
 |---|---|---|
 | Kernel | linux-cachyos (optimizado) | linux (estándar) |
-| Filesystem `/home` | Btrfs frecuente | ext4 por defecto (no hay problema CoW) |
-| Gestor de paquetes | pacman + yay | pacman |
-| Entorno gráfico | KDE/GNOME típico | i3 minimalista |
-| Tiempo de instalación | más rápido (mirrors pre-configurados) | estándar |
-| Docker | Mismos paquetes, misma configuración | Mismos paquetes, misma configuración |
+| Filesystem `/home` | Btrfs (problema CoW → usar chattr +C) | ext4 (sin problema CoW) |
+| Gestor de paquetes | pacman + yay | pacman solo |
+| Entorno gráfico | KDE/GNOME típicamente | i3 (minimalista) |
+| Paquetes Docker | Mismos que Arch | Mismos que Arch |
+| Arreglo IP forwarding | Necesario | Necesario |
+| Arreglo DNS | Necesario | Necesario |
+| Paso chattr Btrfs | Necesario | No hace falta |
+| secrets/ y .env | Creados localmente (no en Git) | Deben recrearse en la VM |
+| Servidor SSH | Opcional | Opcional |
 
-### Consejos para el día de la corrección
+### Script de preparación rápida de la VM
 
-- **Haz `make re`** antes de que llegue el evaluador para demostrar que el proyecto se construye desde cero sin errores.
-- **Conoce todos los ficheros de memoria** — el evaluador pedirá que expliques cada Dockerfile y el docker-compose.yml línea a línea.
-- **Prueba `docker kill` en vivo** — demuestra que el contenedor se reinicia automáticamente con `restart: always`.
-- **Muestra la persistencia** — haz `make down && make up` y muestra que el contenido del sitio WordPress sigue ahí.
-- **Ten el checklist a mano** — repasa la sección 15 de esta guía punto por punto antes de la evaluación.
-- **Si el evaluador pide ver las contraseñas:** están en `secrets/` que no está en Git, lo cual es correcto según el subject.
-- **Ten los tres ficheros de documentación listos** — README.md, USER_DOC.md y DEV_DOC.md en la raíz del repo.
-
-### Script de preparación rápida para la VM
-
-Guarda este script como `vm_setup.sh` en tu repositorio (revísalo antes de ejecutarlo):
+Guarda esto en tu repositorio como `vm_setup.sh` y ejecútalo dentro de la VM tras clonar el proyecto:
 
 ```bash
 #!/bin/bash
-# Script de preparación de la VM para la corrección de Inception
-# Ejecutar como ravazque con sudo disponible
-
+# Ejecutar dentro de la VM Arch tras clonar el repositorio
+# Uso: bash vm_setup.sh
 set -e
+
 LOGIN="ravazque"
 
 echo "=== Instalando Docker ==="
@@ -1112,9 +1312,36 @@ sudo mkdir -p /home/${LOGIN}/data/wordpress
 sudo mkdir -p /home/${LOGIN}/data/mysql
 sudo chown -R ${LOGIN}:${LOGIN} /home/${LOGIN}/data
 
-echo "=== Configurando hostname ==="
+echo "=== Configurando dominio local ==="
 echo "127.0.0.1 ${LOGIN}.42.fr" | sudo tee -a /etc/hosts
 
-echo "=== ¡Setup completado! ==="
-echo "Ahora crea srcs/.env y secrets/ con tus credenciales y ejecuta 'make'"
+echo ""
+echo "=== ¡Setup completo! Próximos pasos: ==="
+echo "1. Cierra sesión y vuelve a entrar (o ejecuta: newgrp docker)"
+echo "2. Crea srcs/.env con tus valores"
+echo "3. Crea secrets/ con tus contraseñas"
+echo "4. Ejecuta: make"
+```
+
+### Checklist del día de la evaluación
+
+Antes de que llegue el evaluador:
+
+```bash
+# 1. Reconstrucción completa para demostrar que funciona desde cero
+make re
+
+# 2. Sigue los logs hasta que todos los contenedores estén listos
+make logs
+
+# 3. Abre Firefox en i3 y verifica el sitio
+# https://ravazque.42.fr — el sitio debe cargar
+# https://ravazque.42.fr/wp-admin — el panel de admin debe cargar
+
+# 4. Ejecuta el checklist de corrección (sección 15)
+docker compose -f srcs/docker-compose.yml ps
+openssl s_client -connect ravazque.42.fr:443 2>/dev/null | grep Protocol
+docker network inspect inception --format '{{range .Containers}}{{.Name}} {{end}}'
+docker exec wordpress wp user list --allow-root
+docker kill nginx && sleep 5 && docker ps | grep nginx  # Prueba de reinicio
 ```

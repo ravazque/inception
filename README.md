@@ -91,7 +91,7 @@ All three services use `restart: always`. If a container crashes, Docker restart
 <details>
 <summary><strong>Environment Variables</strong></summary>
 
-All credentials and configuration values are stored in `srcs/.env` and injected into containers via `env_file`. No passwords appear in any Dockerfile or compose file.
+All credentials and configuration values are stored in `src/.env` and injected into containers via `env_file`. No passwords appear in any Dockerfile or compose file.
 
 ```env
 DOMAIN_NAME=ravazque.42.fr
@@ -110,7 +110,7 @@ WP_USER_PASSWORD=...
 WP_USER_EMAIL=...
 ```
 
-See `srcs/.env.example` for the full variable list.
+See `src/.env.example` for the full variable list.
 
 </details>
 
@@ -127,8 +127,8 @@ git clone https://github.com/ravazque/inception.git
 cd inception
 
 # Create your environment file from the example
-cp srcs/.env.example srcs/.env
-# Edit srcs/.env and fill in your credentials
+cp src/.env.example src/.env
+# Edit src/.env and fill in your credentials
 
 # Create host data directories
 sudo mkdir -p /home/ravazque/data/wordpress
@@ -169,8 +169,8 @@ inception/
 ├── docs/
 │   ├── guideES.md                          # Complete setup guide (Spanish)
 │   └── guideEN.md                          # Complete setup guide (English)
-└── srcs/
-    ├── .env.example                        # Environment variable template
+└── src/
+    ├── .env                                # Environment variable
     ├── docker-compose.yml                  # Service orchestration
     └── requirements/
         ├── nginx/
