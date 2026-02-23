@@ -2,9 +2,9 @@
 # INCEPTION — .gitignore
 # =============================================================================
 
-# Environment file & secrets/
-# srcs/.env
-# secrets/
+docs/subject.pdf
+srcs/.env
+secrets/
 
 # Editor and IDE
 .vscode/
