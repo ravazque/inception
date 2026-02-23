@@ -228,4 +228,4 @@ The inception project teaches infrastructure and containerization fundamentals:
 
 > [!NOTE]
 > Full setup and configuration guides are available in `docs/guideES.md` (Spanish) and `docs/guideEN.md` (English), covering Docker installation, every configuration file explained line by line, the full evaluation checklist, and the migration workflow to a VirtualBox VM.
-> 
+>

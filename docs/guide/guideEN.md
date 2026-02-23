@@ -987,7 +987,3 @@ echo "127.0.0.1 ${LOGIN}.42.fr" | sudo tee -a /etc/hosts
 echo "=== Setup complete! ==="
 echo "Now create src/.env with your credentials and run 'make'"
 ```
-
----
-
-*Guide written for the 42 Madrid Inception project. Login: ravazque.*
