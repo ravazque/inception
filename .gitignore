@@ -1,0 +1,27 @@
+# =============================================================================
+# INCEPTION — .gitignore
+# =============================================================================
+
+# Environment file — contains passwords, never commit this
+src/.env
+
+# Editor and IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+Thumbs.db
+
+# Docker generated files
+# (volumes and runtime data live outside the repo at /home/ravazque/data/)
+
+# Logs
+*.log

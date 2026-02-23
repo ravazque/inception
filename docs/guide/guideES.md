@@ -37,7 +37,7 @@ Inception es un proyecto de administración de sistemas de 42 en el que construy
 - **Contenedor MariaDB** — la base de datos. Escucha internamente en el puerto 3306.
 - **Dos volúmenes Docker** — uno para los ficheros de la base de datos (`/var/lib/mysql`) y otro para los ficheros del sitio web (`/var/www/html`). Ambos deben estar en el host en `/home/ravazque/data/`.
 - **Una red Docker** de tipo bridge definida por el usuario. Usar `network: host`, `--link` o `links:` está **prohibido**.
-- **Un `.env`** en `srcs/` con todas las credenciales. Ninguna contraseña en los Dockerfiles.
+- **Un `.env`** en `src/` con todas las credenciales. Ninguna contraseña en los Dockerfiles.
 - **Un Makefile** en la raíz del proyecto que construya todo con docker-compose.
 - **Dominio** `ravazque.42.fr` apuntando a la IP local de tu máquina.
 - **Dos usuarios WordPress** — un administrador (cuyo nombre NO puede contener "admin") y un usuario normal.
@@ -122,7 +122,7 @@ El subject especifica una estructura exacta. Créala ahora:
 ```
 inception/
 ├── Makefile
-└── srcs/
+└── src/
     ├── .env
     ├── docker-compose.yml
     └── requirements/
@@ -149,9 +149,9 @@ inception/
 Crear todos los directorios de golpe:
 
 ```bash
-mkdir -p inception/srcs/requirements/nginx/{conf,tools}
-mkdir -p inception/srcs/requirements/wordpress/{conf,tools}
-mkdir -p inception/srcs/requirements/mariadb/{conf,tools}
+mkdir -p inception/src/requirements/nginx/{conf,tools}
+mkdir -p inception/src/requirements/wordpress/{conf,tools}
+mkdir -p inception/src/requirements/mariadb/{conf,tools}
 ```
 
 Crear los directorios del host donde los volúmenes Docker almacenarán datos persistentes:
@@ -190,7 +190,7 @@ ping -c 1 ravazque.42.fr
 
 ## 6. El archivo .env
 
-Crea `inception/srcs/.env`. Este fichero contiene todas las credenciales y variables de configuración. Docker Compose lo lee automáticamente.
+Crea `inception/src/.env`. Este fichero contiene todas las credenciales y variables de configuración. Docker Compose lo lee automáticamente.
 
 ```env
 # Dominio
@@ -223,7 +223,7 @@ WP_USER_EMAIL=editor@student.42.fr
 
 ## 7. Contenedor MariaDB
 
-### `srcs/requirements/mariadb/Dockerfile`
+### `src/requirements/mariadb/Dockerfile`
 
 ```dockerfile
 FROM debian:bullseye
@@ -255,7 +255,7 @@ ENTRYPOINT ["/usr/local/bin/setup.sh"]
 - `EXPOSE 3306` — documenta que el contenedor usa el puerto 3306 (informativo, la red Docker gestiona la conectividad).
 - `ENTRYPOINT` — ejecuta el script de configuración al arrancar el contenedor.
 
-### `srcs/requirements/mariadb/conf/50-server.cnf`
+### `src/requirements/mariadb/conf/50-server.cnf`
 
 ```ini
 [mysqld]
@@ -267,7 +267,7 @@ bind-address    = 0.0.0.0
 
 - `bind-address = 0.0.0.0` — **línea crítica**. El valor por defecto es `127.0.0.1` (solo acepta conexiones locales). Cambiarlo a `0.0.0.0` permite conexiones desde otros contenedores de la red Docker (WordPress necesita conectarse a MariaDB).
 
-### `srcs/requirements/mariadb/tools/setup.sh`
+### `src/requirements/mariadb/tools/setup.sh`
 
 ```bash
 #!/bin/bash
@@ -301,7 +301,7 @@ exec mysqld_safe
 
 ## 8. Contenedor WordPress
 
-### `srcs/requirements/wordpress/Dockerfile`
+### `src/requirements/wordpress/Dockerfile`
 
 ```dockerfile
 FROM debian:bullseye
@@ -343,7 +343,7 @@ ENTRYPOINT ["/usr/local/bin/setup.sh"]
 - `mariadb-client` se incluye para que WP-CLI pueda verificar la conexión a la base de datos.
 - WP-CLI se descarga durante el build, no en el entrypoint, para que no se repita en cada arranque.
 
-### `srcs/requirements/wordpress/conf/www.conf`
+### `src/requirements/wordpress/conf/www.conf`
 
 ```ini
 [www]
@@ -366,7 +366,7 @@ clear_env = no
 - `listen = 0.0.0.0:9000` — por defecto PHP-FPM escucha en un Unix socket (`/run/php/php7.4-fpm.sock`). Lo cambiamos a TCP puerto 9000 para que NGINX (en un contenedor diferente) pueda alcanzarlo por la red Docker.
 - `clear_env = no` — **crítico para Inception**. Por defecto PHP-FPM limpia todas las variables de entorno por seguridad. Con `no`, las variables del `.env` (credenciales de BD, etc.) se pasan a WordPress.
 
-### `srcs/requirements/wordpress/tools/setup.sh`
+### `src/requirements/wordpress/tools/setup.sh`
 
 ```bash
 #!/bin/bash
@@ -418,7 +418,7 @@ exec php-fpm7.4 -F
 
 ## 9. Contenedor NGINX
 
-### `srcs/requirements/nginx/Dockerfile`
+### `src/requirements/nginx/Dockerfile`
 
 ```dockerfile
 FROM debian:bullseye
@@ -442,7 +442,7 @@ CMD ["nginx", "-g", "daemon off;"]
 - `openssl` se instala para generar el certificado TLS autofirmado.
 - `CMD ["nginx", "-g", "daemon off;"]` — arranca NGINX en primer plano. `daemon off;` evita que NGINX haga fork al fondo (requerido por Docker). El script del ENTRYPOINT se ejecuta primero y luego pasa la ejecución a este CMD.
 
-### `srcs/requirements/nginx/conf/nginx.conf`
+### `src/requirements/nginx/conf/nginx.conf`
 
 ```nginx
 server {
@@ -480,7 +480,7 @@ server {
 - `fastcgi_pass wordpress:9000` — reenvía las peticiones PHP al contenedor WordPress. Docker resuelve `wordpress` a la IP del contenedor automáticamente.
 - `fastcgi_read_timeout 300` — evita timeouts durante la instalación inicial de WordPress.
 
-### `srcs/requirements/nginx/tools/setup.sh`
+### `src/requirements/nginx/tools/setup.sh`
 
 ```bash
 #!/bin/bash
@@ -509,7 +509,7 @@ exec "$@"
 
 ## 10. El docker-compose.yml
 
-Crea `inception/srcs/docker-compose.yml`:
+Crea `inception/src/docker-compose.yml`:
 
 ```yaml
 version: '3.8'
@@ -594,19 +594,19 @@ all: up
 up:
 	@mkdir -p /home/ravazque/data/wordpress
 	@mkdir -p /home/ravazque/data/mysql
-	@docker compose -f srcs/docker-compose.yml --env-file srcs/.env up -d --build
+	@docker compose -f src/docker-compose.yml --env-file src/.env up -d --build
 
 down:
-	@docker compose -f srcs/docker-compose.yml --env-file srcs/.env down
+	@docker compose -f src/docker-compose.yml --env-file src/.env down
 
 stop:
-	@docker compose -f srcs/docker-compose.yml --env-file srcs/.env stop
+	@docker compose -f src/docker-compose.yml --env-file src/.env stop
 
 start:
-	@docker compose -f srcs/docker-compose.yml --env-file srcs/.env start
+	@docker compose -f src/docker-compose.yml --env-file src/.env start
 
 logs:
-	@docker compose -f srcs/docker-compose.yml logs -f
+	@docker compose -f src/docker-compose.yml logs -f
 
 clean: down
 	@docker system prune -af
@@ -664,7 +664,7 @@ Cuando veas `NOTICE: ready to handle connections` de PHP-FPM y `¡MariaDB lista!
 ### Verificar los contenedores
 
 ```bash
-docker compose -f srcs/docker-compose.yml ps
+docker compose -f src/docker-compose.yml ps
 ```
 
 Debes ver tres contenedores con estado `Up`.
@@ -775,7 +775,7 @@ git push
 **No incluyas el fichero `.env` en Git.** Añádelo al `.gitignore`:
 
 ```bash
-echo "srcs/.env" >> .gitignore
+echo "src/.env" >> .gitignore
 git add .gitignore
 git commit -m "inception: add .env to gitignore"
 ```
@@ -891,7 +891,7 @@ sudo chown -R ravazque:ravazque /home/ravazque/data
 Crea el `.env` manualmente en la VM (no está en Git):
 
 ```bash
-cat > ~/inception/srcs/.env <<'EOF'
+cat > ~/inception/src/.env <<'EOF'
 DOMAIN_NAME=ravazque.42.fr
 MYSQL_DATABASE=wordpress
 MYSQL_USER=wpuser
@@ -948,7 +948,7 @@ firefox https://ravazque.42.fr
 - **Prueba `docker kill` en vivo** — demuestra que el contenedor se reinicia automáticamente con `restart: always`.
 - **Muestra la persistencia** — haz `make down && make up` y muestra que el contenido del sitio WordPress sigue ahí.
 - **Ten el checklist a mano** — repasa la sección 14 de esta guía punto por punto antes de la evaluación.
-- **Si el evaluador pide ver las contraseñas:** están en `srcs/.env` que no está en Git, lo cual es correcto según el subject.
+- **Si el evaluador pide ver las contraseñas:** están en `src/.env` que no está en Git, lo cual es correcto según el subject.
 
 ### Script de preparación rápida para la VM
 
@@ -985,7 +985,7 @@ echo "=== Configurando hostname ==="
 echo "127.0.0.1 ${LOGIN}.42.fr" | sudo tee -a /etc/hosts
 
 echo "=== ¡Setup completado! ==="
-echo "Ahora crea el fichero srcs/.env con tus credenciales y ejecuta 'make'"
+echo "Ahora crea el fichero src/.env con tus credenciales y ejecuta 'make'"
 ```
 
 ---
