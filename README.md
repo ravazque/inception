@@ -236,9 +236,3 @@ The inception project teaches infrastructure and containerization fundamentals:
 - **Network**: Single user-defined bridge (`inception`)
 - **Restart policy**: `always` on all services
 - **Credentials**: Injected via `.env`, never hardcoded
-
----
-
-> [!NOTE]
-> Full setup and configuration guides are available in `docs/guideES.md` (Spanish) and `docs/guideEN.md` (English), covering Docker installation, every configuration file explained line by line, and the migration workflow to a VirtualBox VM.
->

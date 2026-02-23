@@ -1,18 +1,13 @@
 #!/bin/bash
 
-# Leer contraseñas de Docker secrets
 MYSQL_PASSWORD=$(cat /run/secrets/db_password)
 WP_ADMIN_PASSWORD=$(head -n 1 /run/secrets/credentials)
 WP_USER_PASSWORD=$(sed -n '2p' /run/secrets/credentials)
 
-# Esperar a que MariaDB esté lista
-echo "Esperando a MariaDB..."
 while ! mariadb -h mariadb -u${MYSQL_USER} -p${MYSQL_PASSWORD} ${MYSQL_DATABASE} -e "SELECT 1" &>/dev/null; do
     sleep 2
 done
-echo "¡MariaDB lista!"
 
-# Solo instalar WordPress si no existe ya wp-config.php
 if [ ! -f /var/www/html/wp-config.php ]; then
     wp core download --allow-root
 
