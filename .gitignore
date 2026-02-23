@@ -1,7 +1,9 @@
-# Correction
-docs/guide/
-# secrets/
-# srcs/.env
+
+# .gitignore
+
+# Correction 42
+## secrets/
+## srcs/.env
 
 # Editor and IDE
 .vscode/

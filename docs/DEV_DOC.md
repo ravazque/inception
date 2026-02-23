@@ -66,45 +66,7 @@ docker compose version   # Docker Compose version v2.x.x
 docker run hello-world   # Must succeed without sudo
 ```
 
-### 1.3 Repository Structure
-
-```
-inception/
-├── Makefile                                  ← drives all build and lifecycle operations
-├── README.md                                 ← project overview
-├── USER_DOC.md                               ← user documentation
-├── DEV_DOC.md                                ← this file
-├── .gitignore
-│
-├── secrets/                                  ← password files (Docker secrets)
-│   ├── db_password.txt                       ← MariaDB user password
-│   ├── db_root_password.txt                  ← MariaDB root password
-│   └── credentials.txt                       ← WordPress passwords (line 1: admin, line 2: user)
-│
-│
-└── srcs/
-    ├── .env                                  ← environment variables
-    ├── .env.example                          ← template with all required variable names
-    ├── docker-compose.yml                    ← service orchestration
-    └── requirements/
-        ├── nginx/
-        │   ├── Dockerfile
-        │   ├── .dockerignore
-        │   ├── conf/nginx.conf               ← HTTPS server block, FastCGI proxy
-        │   └── tools/setup.sh                ← generates TLS cert, launches NGINX
-        ├── wordpress/
-        │   ├── Dockerfile
-        │   ├── .dockerignore
-        │   ├── conf/www.conf                 ← PHP-FPM pool (TCP :9000, clear_env=no)
-        │   └── tools/setup.sh                ← waits for DB, installs WP, creates users
-        └── mariadb/
-            ├── Dockerfile
-            ├── .dockerignore
-            ├── conf/50-server.cnf            ← bind-address 0.0.0.0
-            └── tools/setup.sh                ← creates DB, user, grants, sets root pw
-```
-
-### 1.4 Creating the Configuration Files
+### 1.3 Creating the Configuration Files
 
 These files are excluded from Git and must be created on every new environment.
 

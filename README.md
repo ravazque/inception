@@ -167,10 +167,17 @@ inception/
 ├── Makefile
 ├── .gitignore
 ├── README.md                               # Project documentation
+│
+├── docs/
+│   ├── README.md                           # project overview
+│   ├── USER_DOC.md                         # user documentation
+│   └── DEV_DOC.md                          # this file
+│
 ├── secrets/
 │   ├── credentials.txt                     # WordPress passwords (line 1: admin, line 2: user)
 │   ├── db_password.txt                     # MariaDB user password
 │   └── db_root_password.txt                # MariaDB root password
+│
 └── srcs/
     ├── .env                                # Environment variables
     ├── .env.example                        # Template for .env
