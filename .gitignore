@@ -3,7 +3,7 @@
 # =============================================================================
 
 # Environment file — contains passwords, never commit this
-src/.env
+srcs/.env
 
 # Editor and IDE
 .vscode/
