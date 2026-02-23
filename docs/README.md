@@ -219,18 +219,6 @@ inception/
 - [Docker secrets overview](https://docs.docker.com/engine/swarm/secrets/)
 - [TLS 1.2 vs TLS 1.3](https://www.cloudflare.com/learning/ssl/why-use-tls-1.3/)
 
-### AI Usage Disclosure
-
-AI language model tools were used during this project for the following tasks:
-
-- **Documentation:** Drafting and structuring README.md, USER_DOC.md, and DEV_DOC.md, and reviewing compliance with subject requirements.
-- **Configuration review:** Cross-checking NGINX server block syntax and PHP-FPM pool parameters against official documentation.
-- **Script logic review:** Reviewing the idempotency logic in MariaDB and WordPress entrypoint scripts to ensure correctness across multiple container restarts.
-- **Debugging:** Interpreting Docker networking errors specific to Arch Linux environments using `systemd-resolved`.
-- **Test scripts:** Generating automated verification scripts for pre-deployment validation.
-
-All AI-generated content was reviewed, tested against actual running containers, and fully understood before inclusion.
-
 ---
 
 ## Technical Specifications
