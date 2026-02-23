@@ -2,8 +2,9 @@
 # INCEPTION — .gitignore
 # =============================================================================
 
-# Environment file — contains passwords, never commit this
-srcs/.env
+# Environment file & secrets/
+# srcs/.env
+# secrets/
 
 # Editor and IDE
 .vscode/
