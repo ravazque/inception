@@ -10,7 +10,7 @@ This document describes how to set up the development environment, build the pro
 
 ### 1.1 System Requirements
 
-**Operating system:** The project is developed and tested on Arch-based systems (CachyOS, Arch Linux). It is evaluated on a fresh Arch Linux installation inside a VirtualBox VM running on Ubuntu. Both environments require the same Docker setup.
+**Operating system:** The project is developed and tested on Arch-based systems (CachyOS, Arch Linux). It runs on any Linux system with Docker support. Both native and VM-based environments require the same Docker setup.
 
 **Required packages:**
 
@@ -71,23 +71,19 @@ docker run hello-world   # Must succeed without sudo
 ```
 inception/
 ├── Makefile                                  ← drives all build and lifecycle operations
-├── README.md                                 ← project overview (subject requirement)
-├── USER_DOC.md                               ← user documentation (subject requirement)
-├── DEV_DOC.md                                ← this file (subject requirement)
-├── .gitignore                                ← excludes secrets/ and srcs/.env
+├── README.md                                 ← project overview
+├── USER_DOC.md                               ← user documentation
+├── DEV_DOC.md                                ← this file
+├── .gitignore
 │
-├── secrets/                                  ← NOT in Git — create manually on each machine
+├── secrets/                                  ← password files (Docker secrets)
 │   ├── db_password.txt                       ← MariaDB user password
 │   ├── db_root_password.txt                  ← MariaDB root password
 │   └── credentials.txt                       ← WordPress passwords (line 1: admin, line 2: user)
 │
-├── docs/
-│   └── guide/
-│       ├── guideEN.md                        ← complete English setup and evaluation guide
-│       └── guideES.md                        ← complete Spanish setup and evaluation guide
 │
 └── srcs/
-    ├── .env                                  ← NOT in Git — create from .env.example
+    ├── .env                                  ← environment variables
     ├── .env.example                          ← template with all required variable names
     ├── docker-compose.yml                    ← service orchestration
     └── requirements/
@@ -205,7 +201,7 @@ Expected sequence:
 | `make fclean` | `clean` + wipe `/home/ravazque/data/` persistent data |
 | `make re` | `fclean` + full rebuild from scratch |
 
-> Use `make re` to verify the project builds cleanly from zero. This is what an evaluator will typically do at the start of the evaluation session.
+> Use `make re` to verify the project builds cleanly from zero state.
 
 ---
 

@@ -166,27 +166,33 @@ make re
 inception/
 ├── Makefile
 ├── .gitignore
-├── docs/
-│   ├── guideES.md                          # Complete setup guide (Spanish)
-│   └── guideEN.md                          # Complete setup guide (English)
-└── src/
-    ├── .env                                # Environment variable
+├── README.md                               # Project documentation
+├── secrets/
+│   ├── credentials.txt                     # WordPress passwords (line 1: admin, line 2: user)
+│   ├── db_password.txt                     # MariaDB user password
+│   └── db_root_password.txt                # MariaDB root password
+└── srcs/
+    ├── .env                                # Environment variables
+    ├── .env.example                        # Template for .env
     ├── docker-compose.yml                  # Service orchestration
     └── requirements/
         ├── nginx/
-        │   ├── Dockerfile                  # NGINX image built from debian:bullseye
+        │   ├── Dockerfile                  # NGINX image built from debian:bookworm
+        │   ├── .dockerignore
         │   ├── conf/
         │   │   └── nginx.conf              # NGINX site config (TLS + FastCGI proxy)
         │   └── tools/
         │       └── setup.sh                # Generates TLS cert, starts NGINX
         ├── wordpress/
-        │   ├── Dockerfile                  # WordPress image built from debian:bullseye
+        │   ├── Dockerfile                  # WordPress image built from debian:bookworm
+        │   ├── .dockerignore
         │   ├── conf/
         │   │   └── www.conf                # PHP-FPM pool config (TCP :9000, clear_env=no)
         │   └── tools/
         │       └── setup.sh                # Downloads WP, configures DB, creates users
         └── mariadb/
-            ├── Dockerfile                  # MariaDB image built from debian:bullseye
+            ├── Dockerfile                  # MariaDB image built from debian:bookworm
+            ├── .dockerignore
             ├── conf/
             │   └── 50-server.cnf           # MariaDB config (bind 0.0.0.0:3306)
             └── tools/
@@ -227,5 +233,5 @@ The inception project teaches infrastructure and containerization fundamentals:
 ---
 
 > [!NOTE]
-> Full setup and configuration guides are available in `docs/guideES.md` (Spanish) and `docs/guideEN.md` (English), covering Docker installation, every configuration file explained line by line, the full evaluation checklist, and the migration workflow to a VirtualBox VM.
+> Full setup and configuration guides are available in `docs/guideES.md` (Spanish) and `docs/guideEN.md` (English), covering Docker installation, every configuration file explained line by line, and the migration workflow to a VirtualBox VM.
 >
