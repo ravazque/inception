@@ -3,8 +3,6 @@
 # =============================================================================
 
 docs/subject.pdf
-srcs/.env
-secrets/
 
 # Editor and IDE
 .vscode/
