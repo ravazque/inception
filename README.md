@@ -236,3 +236,9 @@ The inception project teaches infrastructure and containerization fundamentals:
 - **Network**: Single user-defined bridge (`inception`)
 - **Restart policy**: `always` on all services
 - **Credentials**: Injected via `.env`, never hardcoded
+
+---
+
+> [!WARNING]
+> In this project, you can find the “.env” file as well as the “secrets” directory because it is a learning project and, in this case, they do not represent a real danger of sensitive information being leaked. It is just another project from the 42 school!
+
