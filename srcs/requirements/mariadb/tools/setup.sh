@@ -4,7 +4,9 @@ MYSQL_PASSWORD=$(cat /run/secrets/db_password)
 MYSQL_ROOT_PASSWORD=$(cat /run/secrets/db_root_password)
 
 mysqld_safe &
-sleep 5
+while ! mysqladmin ping --silent 2>/dev/null; do
+    sleep 2
+done
 
 if ! mysql -e "USE ${MYSQL_DATABASE}" 2>/dev/null; then
     mysql -e "CREATE DATABASE IF NOT EXISTS \`${MYSQL_DATABASE}\`;"

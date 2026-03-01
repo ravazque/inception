@@ -6,6 +6,7 @@ Referencia tecnica completa de la infraestructura web Dockerizada: NGINX + WordP
 
 ## Tabla de Contenidos
 
+0. [Instalacion de Docker y Puesta en Marcha](#0-instalacion-de-docker-y-puesta-en-marcha)
 1. [Arquitectura del Sistema](#1-arquitectura-del-sistema)
 2. [Contenedores e Imagenes Docker](#2-contenedores-e-imagenes-docker)
 3. [NGINX -- Proxy Inverso y TLS](#3-nginx----proxy-inverso-y-tls)
@@ -20,6 +21,138 @@ Referencia tecnica completa de la infraestructura web Dockerizada: NGINX + WordP
 12. [Makefile](#12-makefile)
 13. [Seguridad](#13-seguridad)
 14. [Diferencias entre Entornos](#14-diferencias-entre-entornos)
+
+---
+
+## 0. Instalacion de Docker y Puesta en Marcha
+
+### Instalar Docker segun tu distribucion
+
+#### Debian / Ubuntu
+
+```bash
+sudo apt-get update
+sudo apt-get install -y ca-certificates curl gnupg
+sudo install -m 0755 -d /etc/apt/keyrings
+curl -fsSL https://download.docker.com/linux/debian/gpg | sudo gpg --dearmor -o /etc/apt/keyrings/docker.gpg
+sudo chmod a+r /etc/apt/keyrings/docker.gpg
+
+echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.gpg] \
+  https://download.docker.com/linux/debian $(. /etc/os-release && echo "$VERSION_CODENAME") stable" | \
+  sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
+
+sudo apt-get update
+sudo apt-get install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
+```
+
+#### Arch Linux / CachyOS
+
+```bash
+sudo pacman -S docker docker-compose docker-buildx
+```
+
+#### Fedora
+
+```bash
+sudo dnf install -y dnf-plugins-core
+sudo dnf config-manager --add-repo https://download.docker.com/linux/fedora/docker-ce.repo
+sudo dnf install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
+```
+
+### Habilitar e iniciar el servicio Docker
+
+Una vez instalado, hay que activar el demonio de Docker para que arranque con el sistema:
+
+```bash
+sudo systemctl enable docker
+sudo systemctl start docker
+```
+
+Verificar que el servicio esta corriendo:
+
+```bash
+sudo systemctl status docker
+```
+
+### Anadir tu usuario al grupo docker (evitar usar sudo)
+
+Por defecto solo root puede usar Docker. Para ejecutar comandos sin `sudo`:
+
+```bash
+sudo usermod -aG docker $USER
+```
+
+**Importante:** Hay que cerrar sesion y volver a entrar (o ejecutar `newgrp docker`) para que el cambio surta efecto. Verificar con:
+
+```bash
+docker info
+```
+
+Si no da error de permisos, esta correctamente configurado.
+
+### Habilitar IP forwarding (necesario para redes Docker)
+
+Docker necesita IP forwarding para que los contenedores puedan comunicarse entre si y con el exterior:
+
+```bash
+sudo sysctl -w net.ipv4.ip_forward=1
+```
+
+Para hacerlo permanente, anadir al archivo `/etc/sysctl.d/99-docker.conf`:
+
+```bash
+echo "net.ipv4.ip_forward = 1" | sudo tee /etc/sysctl.d/99-docker.conf
+sudo sysctl --system
+```
+
+### Configurar el dominio local
+
+El proyecto requiere que `ravazque.42.fr` apunte a tu maquina local. Anadir la entrada en `/etc/hosts`:
+
+```bash
+echo "127.0.0.1 ravazque.42.fr" | sudo tee -a /etc/hosts
+```
+
+Verificar:
+
+```bash
+ping -c 1 ravazque.42.fr
+```
+
+### Levantar el entorno
+
+Desde la raiz del proyecto:
+
+```bash
+# Construir imagenes y arrancar todos los contenedores
+make
+
+# Verificar que los 3 contenedores estan corriendo
+docker ps
+
+# Ver logs en tiempo real
+make logs
+```
+
+Tras el primer `make`, los contenedores:
+1. Construyen las imagenes desde `debian:bookworm`
+2. Generan el certificado TLS autofirmado (NGINX)
+3. Esperan a que MariaDB este lista (WordPress)
+4. Crean la base de datos y usuarios (MariaDB)
+5. Descargan e instalan WordPress (WordPress)
+
+La web estara disponible en `https://ravazque.42.fr`.
+
+### Parar y gestionar el entorno
+
+```bash
+make down      # Para y elimina contenedores
+make stop      # Para contenedores sin eliminarlos
+make start     # Reinicia contenedores parados
+make clean     # Elimina contenedores, imagenes y volumenes
+make fclean    # clean + borra datos persistentes del host
+make re        # fclean + levanta todo desde cero
+```
 
 ---
 
@@ -522,7 +655,9 @@ MYSQL_ROOT_PASSWORD=$(cat /run/secrets/db_root_password)
 
 # Arrancar MariaDB temporalmente para ejecutar comandos SQL
 mysqld_safe &
-sleep 5
+while ! mysqladmin ping --silent 2>/dev/null; do
+    sleep 2
+done
 
 # Solo ejecutar setup si la base de datos no existe ya
 if ! mysql -e "USE ${MYSQL_DATABASE}" 2>/dev/null; then
@@ -546,7 +681,7 @@ exec mysqld_safe
    - `db_password`: Contrasena del usuario de la base de datos (usado por WordPress para conectarse)
    - `db_root_password`: Contrasena del usuario root de MariaDB
 
-2. **Instancia temporal:** `mysqld_safe &` arranca MariaDB en segundo plano. El `sleep 5` da tiempo a que el servidor este listo para aceptar conexiones. Esta instancia temporal permite ejecutar comandos SQL para configurar la base de datos.
+2. **Instancia temporal:** `mysqld_safe &` arranca MariaDB en segundo plano. El bucle `while ! mysqladmin ping` espera activamente a que el servidor este listo para aceptar conexiones, comprobando cada 2 segundos. Esta instancia temporal permite ejecutar comandos SQL para configurar la base de datos.
 
 3. **Idempotencia:** `if ! mysql -e "USE ${MYSQL_DATABASE}"` comprueba si la base de datos ya existe. Si ya existe (por ejemplo, porque los datos persisten en el volumen desde un arranque anterior), todo el bloque de creacion se salta. Esto evita errores por intentar crear recursos duplicados y hace el script seguro para reinicios.
 
